@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Analyze a Logic Pro bounce for loudness, tonal balance and stereo image, with fixes using Logic's built-in plugins.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Mixdown Report</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="ledrow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <h1>Mixdown Report</h1>
+    </div>
+    <p class="lede">Drop a bounce from Logic Pro to measure loudness, tonal balance and stereo image. Each problem comes with fixes using Logic's built-in plugins. Your audio is analyzed in this browser and never uploaded.</p>
+    <noscript><p>Mixdown Report needs JavaScript to analyze audio.</p></noscript>
+  </header>
+
+  <section class="inputs" aria-label="Files and settings">
+    <div class="drop" id="dropMix">
+      <label class="pick" for="fileMix">
+        <input type="file" id="fileMix" accept="audio/*,.wav,.aif,.aiff,.mp3,.m4a,.flac">
+        <span class="k">Your mix</span>
+        <span class="drop-name" id="mixName">Drop a WAV or AIFF bounce here</span>
+        <span class="drop-sub">or click to choose a file</span>
+      </label>
+      <button class="clear reload" id="reloadMix" type="button" hidden title="Read the mix file again from disk and re-analyze it (R)">Reload mix</button>
+    </div>
+    <div class="drop" id="dropRef">
+      <label class="pick" for="fileRef">
+        <input type="file" id="fileRef" accept="audio/*,.wav,.aif,.aiff,.mp3,.m4a,.flac">
+        <span class="k">Reference track (optional)</span>
+        <span class="drop-name" id="refName">A released song you want to sound like</span>
+        <span class="drop-sub">Compares tonal balance, width and dynamics to it</span>
+      </label>
+      <button class="clear" id="clearRef" type="button" hidden>Remove reference</button>
+    </div>
+    <div class="settings">
+      <label><span class="k">Stage</span><select id="stage"></select></label>
+      <label><span class="k">Genre</span><select id="genre"></select></label>
+      <label><span class="k">Release on</span><select id="target"></select></label>
+    </div>
+  </section>
+
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+
+  <section class="meters" id="meters" aria-label="Measurements"></section>
+
+  <section class="main">
+    <div class="col">
+      <div class="panel">
+        <div class="panel-h">
+          <h2>Tonal balance</h2>
+          <div class="legend"><span>Your mix</span><span class="cmp" id="cmpLegend">Genre curve</span><span class="tol" id="tolLegend">±3 dB</span></div>
+        </div>
+        <canvas id="specCv" role="img" aria-label="Third-octave spectrum of the mix compared with the target curve"></canvas>
+        <div class="bands" id="bands"></div>
+        <p class="note" id="specNote"></p>
+      </div>
+      <div class="panel">
+        <div class="panel-h">
+          <h2>Loudness over time</h2>
+          <div class="legend"><span>Short-term (3 s)</span><span class="cmp">Integrated</span></div>
+        </div>
+        <canvas id="loudCv" role="img" aria-label="Short-term loudness over the length of the song"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>What to fix</h2><span class="k" id="recCount"></span></div>
+      <div class="recs" id="recs"></div>
+    </div>
+  </section>
+
+  <section class="panel chain">
+    <div class="panel-h"><h2 id="chainTitle">Mastering chain for the Stereo Out</h2><span class="k">Insert in this order</span></div>
+    <ol id="chain"></ol>
+    <p class="alt" id="chainAlt"></p>
+  </section>
+
+  <section class="foot">
+    <div class="panel">
+      <h2>Bouncing from Logic Pro</h2>
+      <ul>
+        <li>File &gt; Bounce &gt; Project or Section (⌘B), with the cycle area covering the whole song.</li>
+        <li>Destination PCM, File Format WAVE or AIFF, Resolution 24-bit, Sample Rate same as the project.</li>
+        <li>Normalize: Off. Dithering: None. Mode: Offline.</li>
+        <li>For a mix headed to mastering, bypass any limiter or Mastering Assistant on the Stereo Out first.</li>
+        <li>Make a reference comparable: use a lossless or high-quality file, not a YouTube rip.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Share the report</h2>
+      <p class="note copy-hint">Copies the measurements, fixes and chain as plain text for notes or a collaborator.</p>
+      <div class="actions"><button class="btn" id="copyBtn" type="button">Copy report</button><span id="copyMsg" class="note copy-msg" aria-live="polite"></span></div>
+      <textarea id="copyOut" readonly hidden aria-label="Report text"></textarea>
+    </div>
+  </section>
+</div>
+</body>
+</html>
