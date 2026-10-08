@@ -4,8 +4,8 @@ Makes shared links to https://mixdownreport.netlify.app look good, and adds a on
 
 **Changes**
 - **Link previews:**
-  - Open Graph and X/Twitter tags with a 1200×630 share image;
-  - DAW-neutral title and description;
+  - Open Graph and X/Twitter tags with a 1200×630 share image that ends with a "Try it free" button;
+  - DAW-neutral title and description, sized for search results and phone previews;
   - a canonical URL and light/dark theme colours.
 - **App icons:** an Apple touch icon and 192/512 px PNG icons, listed in a new web manifest so the app can be added to phone home screens and installed.
 - **`npm run images`:** redraws the share image and icons with headless Chrome. It has no dependencies.

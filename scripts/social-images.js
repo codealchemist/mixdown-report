@@ -82,14 +82,16 @@ const ogHtml = () => `<!doctype html><meta charset="utf-8">
   html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:${BG};color:${INK}}
   body{font-family:"IBM Plex Sans",-apple-system,"Helvetica Neue",sans-serif;position:relative}
   .glow{position:absolute;inset:0;background:radial-gradient(900px 500px at 85% 20%, rgba(79,191,200,.16), transparent 60%),radial-gradient(700px 400px at 10% 110%, rgba(240,163,94,.10), transparent 60%)}
-  .wrap{position:absolute;inset:0;padding:64px 72px;display:grid;grid-template-columns:1fr 470px;gap:48px;align-items:center}
-  .brand{display:flex;align-items:center;gap:20px;margin-bottom:34px}
+  .wrap{position:absolute;inset:0;padding:48px 72px;display:grid;grid-template-columns:1fr 470px;gap:48px;align-items:center}
+  .brand{display:flex;align-items:center;gap:20px;margin-bottom:26px}
   h1{margin:0;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:84px;line-height:.9;letter-spacing:.05em;text-transform:uppercase}
   p{margin:0;font-size:29px;line-height:1.38;color:${INK};max-width:560px}
   p b{color:${TEAL};font-weight:500}
-  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:34px}
+  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
   .tag{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:999px;border:1.5px solid ${LINE};color:${MUTED}}
-  .url{position:absolute;left:72px;bottom:50px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:22px;color:${TEAL}}
+  .cta{display:flex;align-items:center;gap:22px;margin-top:32px}
+  .cta .btn{font-family:"IBM Plex Sans",sans-serif;font-weight:500;font-size:24px;color:${BG};background:${TEAL};padding:11px 24px;border-radius:12px;white-space:nowrap}
+  .cta .url{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:20px;color:${MUTED};white-space:nowrap}
   .card{background:${PANEL};border:1.5px solid ${LINE};border-radius:18px;padding:22px 18px 14px}
   .card .k{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:18px;letter-spacing:.14em;color:${MUTED};margin:0 0 8px 14px;text-transform:uppercase}
   .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:${LINE};border:1.5px solid ${LINE};border-radius:14px;overflow:hidden;margin-top:16px}
@@ -108,6 +110,7 @@ const ogHtml = () => `<!doctype html><meta charset="utf-8">
     </div>
     <p>Drop a bounce from <b>any DAW</b>. Get mix fixes, EQ presets, a master and <span style="white-space:nowrap">release-ready</span> FLAC &amp; MP3.</p>
     <div class="tags"><span class="tag">Loudness</span><span class="tag">Tonal balance</span><span class="tag">Stereo</span><span class="tag">Runs in your browser</span></div>
+    <div class="cta"><span class="btn">Try it free →</span><span class="url">mixdownreport.netlify.app</span></div>
   </div>
   <div>
     <div class="card"><div class="k">Tonal balance</div>${chart(434, 250)}</div>
@@ -117,8 +120,7 @@ const ogHtml = () => `<!doctype html><meta charset="utf-8">
       <div class="m w"><div class="l">Range</div><div class="v">6.8<small>LU</small></div></div>
     </div>
   </div>
-</div>
-<div class="url">mixdownreport.netlify.app</div>`;
+</div>`;
 
 const chrome = CHROME_PATHS.find((p) => existsSync(p));
 if (!chrome) {
