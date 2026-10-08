@@ -56,6 +56,10 @@ button, select { font: inherit; }
 
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .top noscript { flex-basis: 100%; }
+.top-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
+/* GitHub mark: Octicons "mark-github" (MIT) */
+.repo-link { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: var(--muted); border: 1px solid transparent; }
+.repo-link:hover { color: var(--ink); border-color: var(--line); background: var(--panel); }
 .brand { display: flex; align-items: center; gap: 12px; }
 .ledrow { display: flex; gap: 3px; align-items: flex-end; height: 26px; }
 .ledrow i { width: 5px; border-radius: 1px; background: var(--accent); }
@@ -174,7 +178,7 @@ body { margin: 0; }
 .ledrow i:nth-child(4) { height: 100%; }
 .ledrow i:nth-child(5) { height: 64%; }
 .pick { display: grid; gap: 4px; cursor: pointer; }
-.reload-btn { margin-left: auto; flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; background: var(--file-mix-bg); border: 1px solid var(--file-mix); color: var(--file-mix); border-radius: 6px; padding: 3px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.reload-btn { flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; background: var(--file-mix-bg); border: 1px solid var(--file-mix); color: var(--file-mix); border-radius: 6px; padding: 3px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 .reload-btn::before { content: "↻"; font-size: 1rem; line-height: 1; }
 .reload-btn:hover:not(:disabled) { background: var(--accent-soft); }
 .reload-btn:disabled { opacity: 0.6; cursor: progress; }
@@ -492,6 +496,9 @@ h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
   .top .ledrow { height: 20px; }
   .reload-btn kbd { display: none; }
   .reload-btn { padding: 3px 10px; }
+  .top { column-gap: 10px; }
+  .top-actions { gap: 6px; }
+  .repo-link { width: 30px; height: 30px; }
 }
 
 /* Release files: settings on the left, the generated files beside them on wide screens */
@@ -501,3 +508,4 @@ h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
   .release-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 24px; align-items: start; }
 }
 .release-empty { margin: 0; padding: 18px; border: 1.5px dashed var(--line); border-radius: 8px; }
+@media (max-width: 380px) { .top h1 { font-size: 1.1rem; } }
