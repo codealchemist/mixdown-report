@@ -1,5 +1,5 @@
 /**
- * Reads format, sample rate and bit depth from WAV and AIFF headers.
+ * Reads format, sample rate and bit depth from WAV, AIFF and FLAC headers.
  * Browsers resample on decode, so the original rate is needed to decode at the file's own rate.
  * @param {ArrayBuffer} buffer
  * @returns {{ format?: string, sampleRate?: number, bitDepth?: number }}
@@ -20,6 +20,11 @@ export function sniffHeader(buffer) {
         }
         o += 8 + chunk + (chunk & 1);
       }
+    }
+    if (tag(0) === 'fLaC' && size >= 26) {
+      // STREAMINFO is always first: sample rate (20 bits), channels − 1 (3), bits − 1 (5)
+      const b = (o) => view.getUint8(o);
+      return { format: 'FLAC', sampleRate: (b(18) << 12) | (b(19) << 4) | (b(20) >> 4), bitDepth: (((b(20) & 1) << 4) | (b(21) >> 4)) + 1 };
     }
     if (tag(0) === 'FORM' && (tag(8) === 'AIFF' || tag(8) === 'AIFC')) {
       for (let o = 12; o + 8 <= size;) {

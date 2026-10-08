@@ -7,13 +7,16 @@ import { h, mount } from './dom.js';
 const SEVERITY_CLASS = { critical: 'crit', warning: 'warn', note: 'info' };
 const STATE_CLASS = { good: 'good', warning: 'warn', critical: 'crit', '': '' };
 
-/** @param {{ kind: 'busy'|'error'|'info', text: string, progress?: number, tag?: string }[]} items */
-export function renderStatus(el, items) {
+/**
+ * @param {{ kind: 'busy'|'error'|'info', text: string, progress?: number, tag?: string }[]} items
+ * @param {string} [progressLabel] accessible name of the progress bar
+ */
+export function renderStatus(el, items, progressLabel = 'Analysis progress') {
   mount(el, items.map((it) => {
     if (it.tag) return h('span', { class: 'tag', text: it.tag });
     const span = h('span', { class: it.kind === 'busy' ? 'busy' : it.kind === 'error' ? 'err' : '', text: it.text });
     if (it.kind !== 'busy' || it.progress == null) return span;
-    return [span, h('progress', { max: 1, value: it.progress.toFixed(3), 'aria-label': 'Analysis progress' })];
+    return [span, h('progress', { max: 1, value: it.progress.toFixed(3), 'aria-label': progressLabel })];
   }));
 }
 
@@ -77,17 +80,25 @@ export function renderBands(el, ev) {
   }));
 }
 
+let openFinding = null; // id of the expanded fix, kept across re-renders
+
+/** Fixes as a compact accordion: one line each, one expanded at a time (the most severe first). */
 export function renderFindings(el, countEl, ev) {
   countEl.textContent = ev.findings.length ? `${ev.findings.length} item${ev.findings.length > 1 ? 's' : ''}` : '';
+  if (!ev.findings.some((f) => f.id === openFinding)) openFinding = ev.findings[0]?.id ?? null;
   mount(el,
     ev.findings.map((f) =>
-      h('article', { class: 'rec' },
-        h('div', { class: 'rec-h' },
+      h('details', {
+        class: 'rec', name: 'fixes', open: f.id === openFinding,
+        ontoggle: (e) => { if (e.target.open) openFinding = f.id; },
+      },
+        h('summary', { class: 'rec-h' },
           h('span', { class: `pill ${SEVERITY_CLASS[f.severity]}`, text: SEVERITY[f.severity].label }),
-          h('span', { class: 'k', text: f.area })),
-        h('h3', { text: f.title }),
-        h('p', { text: f.detail }),
-        f.steps.length && [h('span', { class: 'k logic-k', text: 'In Logic Pro' }), h('ul', { class: 'logic' }, f.steps.map((s) => h('li', { text: s })))])),
+          h('span', { class: 'rec-title', text: f.title }),
+          h('span', { class: 'k rec-area', text: f.area })),
+        h('div', { class: 'rec-body' },
+          h('p', { text: f.detail }),
+          f.steps.length && [h('span', { class: 'k logic-k', text: 'In Logic Pro' }), h('ul', { class: 'logic' }, f.steps.map((s) => h('li', { text: s })))]))),
     !ev.findings.length && h('p', { class: 'note', text: 'Nothing stands out. Trust your ears and compare against a reference.' }),
     ev.ok.length && h('div', { class: 'oklist-wrap' },
       h('span', { class: 'k', text: 'Looks good' }),
@@ -98,9 +109,9 @@ export function renderChain(listEl, titleEl, altEl, ev) {
   titleEl.textContent = ev.stage === 'mix' ? 'When you master this mix' : 'Adjust your mastering chain';
   mount(listEl, ev.chain.map((step, i) =>
     h('li', {},
-      h('span', { class: 'slot', text: `Insert ${i + 1}` }),
-      h('span', { class: 'plug', text: step.plugin }),
-      h('ul', {}, step.settings.map((s) => h('li', { text: s }))))));
+      h('details', { name: 'chain', open: i === 0 },
+        h('summary', {}, h('span', { class: 'slot', text: `Insert ${i + 1}` }), h('span', { class: 'plug', text: step.plugin })),
+        h('ul', {}, step.settings.map((s) => h('li', { text: s })))))));
   altEl.textContent = ev.assistant;
 }
 

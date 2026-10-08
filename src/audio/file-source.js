@@ -22,6 +22,11 @@ export class FileSource {
     this.size = file.size;
   }
 
+  /** The file handle, when the browser provided one (it can be stored to reopen the file later). */
+  get handle() {
+    return this.#handle;
+  }
+
   /** True when reads return the current version on disk and changes can be detected. */
   get tracksDisk() {
     return this.#handle !== null;

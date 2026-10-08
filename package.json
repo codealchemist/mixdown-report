@@ -1,6 +1,6 @@
 {
   "name": "mixdown-report",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Browser app that analyzes a Logic Pro bounce and recommends mix and mastering fixes using Logic's built-in plugins.",
   "private": true,
   "type": "module",
@@ -12,6 +12,8 @@
     "start": "node scripts/serve.js",
     "test": "node --test test/",
     "check": "node scripts/check.js",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test",
+    "pst": "node scripts/pst.js",
+    "calibration": "node scripts/calibration.js"
   }
 }
