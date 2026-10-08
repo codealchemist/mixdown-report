@@ -10,10 +10,13 @@
   },
   "scripts": {
     "start": "node scripts/serve.js",
-    "test": "node --test test/",
+    "test": "node --test test/*.test.js",
     "check": "node scripts/check.js",
     "verify": "npm run check && npm test",
+    "predeploy": "npm run verify",
+    "deploy": "netlify deploy --prod --dir=src",
     "pst": "node scripts/pst.js",
-    "calibration": "node scripts/calibration.js"
+    "calibration": "node scripts/calibration.js",
+    "images": "node scripts/social-images.js"
   }
 }
