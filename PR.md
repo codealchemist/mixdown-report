@@ -12,7 +12,7 @@ Makes shared links to https://mixdownreport.netlify.app look good, and adds a on
 - **`npm run deploy`:** runs the checks and tests, then publishes `src/` to Netlify production.
 - **Node 24:**
   - the `test` script now passes test files to `node --test`, as Node 22 and later require;
-  - the dev server serves `.webmanifest` with the right content type.
+  - the dev server serves `.webmanifest` with the right content type, and a Netlify `_headers` file does the same in production.
 - Version bumped to 1.1.1.
 
 **Testing**
