@@ -1,0 +1,15 @@
+{
+  "name": "Mixdown Report",
+  "short_name": "Mixdown",
+  "description": "Analyze a bounce from any DAW and get mix fixes, EQ presets, a master and release files, all in your browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10161b",
+  "theme_color": "#10161b",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

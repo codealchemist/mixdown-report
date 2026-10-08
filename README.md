@@ -31,9 +31,11 @@ The app must be served over HTTP. Opening `src/index.html` directly from disk wo
 `src/` is the complete site: no build step. Upload that folder to any static host:
 
 - **GitHub Pages:** push the repo, then in Settings > Pages publish from a GitHub Actions workflow that uploads `src/`, or copy `src/` into a `docs/` folder and publish from it.
-- **Netlify:** drag the `src` folder onto https://app.netlify.com/drop, or set the publish directory to `src`.
+- **Netlify:** `npm run deploy` runs the checks and tests, then publishes `src/` to production with the [Netlify CLI](https://docs.netlify.com/cli/get-started/) (`npm install -g netlify-cli`). The first time, run `netlify login` and `netlify link` (or `netlify sites:create`) to choose the site. You can also drag the `src` folder onto https://app.netlify.com/drop.
 - **Cloudflare Pages / Vercel:** no build command; output directory `src`.
 - **Any web server:** serve `src/` with `.js` files as `text/javascript`.
+
+Link previews (Slack, iMessage, WhatsApp, X, LinkedIn) use the Open Graph tags in `src/index.html` and `src/og-image.png` (1200×630). They point at https://mixdownreport.netlify.app, so update the `og:url`, `og:image`, `twitter:image` and canonical URLs if the site moves. `npm run images` redraws the share image and the app icons (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) with headless Chrome; set `CHROME=/path/to/chrome` if it isn't found.
 
 The page sets a strict Content Security Policy in a `<meta>` tag. If your host lets you set headers, sending the same policy as a header (plus `frame-ancestors 'none'`) is stronger.
 
