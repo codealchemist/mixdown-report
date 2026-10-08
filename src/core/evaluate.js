@@ -6,6 +6,7 @@
 import { BAND_ADVICE } from './advice.js';
 import { BANDS, GENRES, TARGETS, THRESHOLDS as T, sanitizeSettings } from './profiles.js';
 import { MINUS, gentleMove, median, num, signed } from './format.js';
+import { moveText } from './eq/channel-eq.js';
 
 /** @typedef {'critical'|'warning'|'note'} Severity */
 /**
@@ -46,7 +47,7 @@ function tonalBalance(ctx) {
       });
     }
     const advice = BAND_ADVICE[band.id][d > 0 ? 'high' : 'low'];
-    const move = advice.eq(gentleMove(d));
+    const move = { ...advice.master, gain: (d > 0 ? -1 : 1) * gentleMove(d), band: i, reason: `${band.name} ${signed(d)} dB vs ${basis}` };
     ctx.eqMoves.push(move);
     ctx.add({
       id: `band-${band.id}-${d > 0 ? 'high' : 'low'}`,
@@ -56,7 +57,7 @@ function tonalBalance(ctx) {
       detail: `${band.name} is ${num(Math.abs(d))} dB ${d > 0 ? 'above' : 'below'} ${basis}. ${advice.why}`,
       steps: stage === 'mix'
         ? advice.mix
-        : [`Channel EQ on the Stereo Out: ${move}. Mastering EQ moves should stay gentle; if this doesn't fix it, go back to the mix.`],
+        : [`Channel EQ on the Stereo Out: ${moveText(move)}. Mastering EQ moves should stay gentle; if this doesn't fix it, go back to the mix.`],
     });
   });
 }
@@ -254,7 +255,7 @@ function masteringChain(ctx) {
   const gain = target.lufs - a.integrated;
   const eqLines = [
     'Low Cut 20 Hz, 24 dB/Oct',
-    ...(stage === 'master' ? eqMoves : eqMoves.map((m) => `${m} (only if the mix fixes don't cover it)`)),
+    ...(stage === 'master' ? eqMoves.map(moveText) : eqMoves.map((m) => `${moveText(m)} (only if the mix fixes don't cover it)`)),
     ...(lowEndOffCenter ? ['Second Channel EQ, Processing: Side, Low Cut 120 Hz'] : []),
     ...(eqMoves.length ? [] : ['No tonal moves needed']),
   ];
@@ -301,6 +302,8 @@ export function evaluate(analysis, rawSettings, { reference = null, file = {} } 
     stage: settings.stage,
     basis: ctx.basis,
     deviations: ctx.deviations,
+    /** Structured Stereo Out EQ moves behind the tonal-balance findings. */
+    masterMoves: ctx.eqMoves,
     findings,
     ok,
     chain: masteringChain(ctx),

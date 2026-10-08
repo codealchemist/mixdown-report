@@ -22,24 +22,42 @@
       <div class="ledrow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
       <h1>Mixdown Report</h1>
     </div>
-    <p class="lede">Drop a bounce from Logic Pro to measure loudness, tonal balance and stereo image. Each problem comes with fixes using Logic's built-in plugins. Your audio is analyzed in this browser and never uploaded.</p>
+    <button class="reload-btn" id="reloadMix" type="button" hidden title="Read the mix file again from disk and re-analyze it (R)">Reload mix</button>
     <noscript><p>Mixdown Report needs JavaScript to analyze audio.</p></noscript>
   </header>
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tablist" role="tablist" id="tabs">
+      <button type="button" role="tab" id="tabbtn-files" aria-controls="tab-files" aria-selected="false" tabindex="-1" data-tab="files">Files</button>
+      <button type="button" role="tab" id="tabbtn-analysis" aria-controls="tab-analysis" aria-selected="false" tabindex="-1" data-tab="analysis">Analysis</button>
+      <button type="button" role="tab" id="tabbtn-fixes" aria-controls="tab-fixes" aria-selected="false" tabindex="-1" data-tab="fixes">What to fix <span class="nav-badge" data-badge="fixes" hidden></span></button>
+      <button type="button" role="tab" id="tabbtn-eq" aria-controls="tab-eq" aria-selected="false" tabindex="-1" data-tab="eq">Correction EQ</button>
+      <button type="button" role="tab" id="tabbtn-tracks" aria-controls="tab-tracks" aria-selected="false" tabindex="-1" data-tab="tracks">Track EQs <span class="nav-badge" data-badge="tracks" hidden></span></button>
+      <button type="button" role="tab" id="tabbtn-calibrate" aria-controls="tab-calibrate" aria-selected="false" tabindex="-1" data-tab="calibrate">Calibrate <span class="nav-badge" data-badge="calibrate" hidden></span></button>
+      <button type="button" role="tab" id="tabbtn-master" aria-controls="tab-master" aria-selected="false" tabindex="-1" data-tab="master">Master <span class="nav-badge" data-badge="master" hidden></span></button>
+      <button type="button" role="tab" id="tabbtn-release" aria-controls="tab-release" aria-selected="false" tabindex="-1" data-tab="release">Release <span class="nav-badge" data-badge="release" hidden></span></button>
+      <button type="button" role="tab" id="tabbtn-help" aria-controls="tab-help" aria-selected="false" tabindex="-1" data-tab="help">Help</button>
+    </div>
+  </nav>
+  <div class="context-bar">
+    <div class="file-pills" id="filePills" aria-label="Files this tab works on"></div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </div>
 
+  <section class="tab-panel" id="tab-files" role="tabpanel" aria-labelledby="tabbtn-files" tabindex="-1" hidden>
+  <p class="lede">Drop a bounce from Logic Pro to measure loudness, tonal balance and stereo image. Each problem comes with fixes using Logic's built-in plugins. Your audio is analyzed in this browser and never uploaded.</p>
   <section class="inputs" aria-label="Files and settings">
     <div class="drop" id="dropMix">
       <label class="pick" for="fileMix">
         <input type="file" id="fileMix" accept="audio/*,.wav,.aif,.aiff,.mp3,.m4a,.flac">
-        <span class="k">Your mix</span>
+        <span class="k role mix">Your mix</span>
         <span class="drop-name" id="mixName">Drop a WAV or AIFF bounce here</span>
         <span class="drop-sub">or click to choose a file</span>
       </label>
-      <button class="clear reload" id="reloadMix" type="button" hidden title="Read the mix file again from disk and re-analyze it (R)">Reload mix</button>
     </div>
     <div class="drop" id="dropRef">
       <label class="pick" for="fileRef">
         <input type="file" id="fileRef" accept="audio/*,.wav,.aif,.aiff,.mp3,.m4a,.flac">
-        <span class="k">Reference track (optional)</span>
+        <span class="k role ref">Reference track (optional)</span>
         <span class="drop-name" id="refName">A released song you want to sound like</span>
         <span class="drop-sub">Compares tonal balance, width and dynamics to it</span>
       </label>
@@ -52,16 +70,16 @@
     </div>
   </section>
 
-  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="files-bar" id="filesBar" hidden></div>
+  </section>
 
+  <section class="tab-panel" id="tab-analysis" role="tabpanel" aria-labelledby="tabbtn-analysis" tabindex="-1" hidden>
   <section class="meters" id="meters" aria-label="Measurements"></section>
-
-  <section class="main">
-    <div class="col">
+  <div class="analysis-grid">
       <div class="panel">
         <div class="panel-h">
           <h2>Tonal balance</h2>
-          <div class="legend"><span>Your mix</span><span class="cmp" id="cmpLegend">Genre curve</span><span class="tol" id="tolLegend">±3 dB</span></div>
+          <div class="legend"><span>Your mix</span><span class="eqline">With correction EQ</span><span class="cmp" id="cmpLegend">Genre curve</span><span class="tol" id="tolLegend">±3 dB</span></div>
         </div>
         <canvas id="specCv" role="img" aria-label="Third-octave spectrum of the mix compared with the target curve"></canvas>
         <div class="bands" id="bands"></div>
@@ -74,20 +92,191 @@
         </div>
         <canvas id="loudCv" role="img" aria-label="Short-term loudness over the length of the song"></canvas>
       </div>
-    </div>
+  </div>
+  </section>
+
+  <section class="tab-panel" id="tab-fixes" role="tabpanel" aria-labelledby="tabbtn-fixes" tabindex="-1" hidden>
+  <div class="fixes-grid">
     <div class="panel">
       <div class="panel-h"><h2>What to fix</h2><span class="k" id="recCount"></span></div>
       <div class="recs" id="recs"></div>
     </div>
-  </section>
-
-  <section class="panel chain">
+  <section class="panel chain" id="chainSection" aria-labelledby="chainTitle">
     <div class="panel-h"><h2 id="chainTitle">Mastering chain for the Stereo Out</h2><span class="k">Insert in this order</span></div>
     <ol id="chain"></ol>
     <p class="alt" id="chainAlt"></p>
   </section>
 
-  <section class="foot">
+  </div>
+  </section>
+
+  <section class="tab-panel" id="tab-eq" role="tabpanel" aria-labelledby="tabbtn-eq" tabindex="-1" hidden>
+  <div class="panel tab-card">
+    <div class="eq-block">
+      <div class="eq-block-h">
+        <h3>Correction EQ <span class="note">one extra Channel EQ on the Stereo Out, for what remains after fixing tracks</span></h3>
+        <div class="actions">
+          <button class="ghost" id="masterReset" type="button" hidden>Reset to suggestion</button>
+          <button class="ghost" id="masterTestButton" type="button">Test on the mix</button>
+          <button class="btn" id="masterDownload" type="button">Download master preset</button>
+        </div>
+      </div>
+      <div class="eq-meta">
+      <details class="how-details">
+        <summary>How the correction EQ works: it corrects your bounce, goes in its own Channel EQ, and is updated, never stacked</summary>
+      <ol class="how">
+        <li><b>It corrects your bounce.</b> The app measures the bounce as it is, including any EQ already on your Stereo Out, and suggests a correction on top of it. Your own EQ stays as it is.</li>
+        <li><b>It goes in its own Channel EQ.</b> In Logic, add one Channel EQ named "Mixdown correction" on the Stereo Out, after your own master EQ and before any compressor, limiter or Mastering Assistant. Never load the preset into your own EQ: a preset replaces all of a plugin's settings.</li>
+        <li><b>It's updated, never stacked.</b> Bounce again with the correction in place and reload: the app suggests the updated whole correction. Load it into the same "Mixdown correction" EQ, replacing its settings, rather than adding another EQ.</li>
+      </ol>
+      </details>
+      <button class="linklike" type="button" data-goto="help">How to install presets in Logic</button>
+      </div>
+      <div class="correction-state" id="correctionState"></div>
+      <div id="masterCheck"></div>
+      <div class="master-grid">
+        <div class="master-left">
+          <canvas id="masterCurve" role="img" aria-label="Master EQ response curve"></canvas>
+          <div class="preview">
+            <button class="btn" id="previewPlay" type="button" aria-pressed="false">Play from the loudest part</button>
+            <button class="ab" id="previewAb" type="button" aria-pressed="true">EQ on (B)</button>
+          </div>
+          <p class="note" id="previewInfo"></p>
+          <ul class="master-notes" id="masterNotes"></ul>
+          <p class="note" id="masterCalNote"></p>
+        </div>
+        <div class="master-right">
+          <div id="masterEditor"></div>
+          <label class="check"><input type="checkbox" id="masterKeepLoudness" checked> Keep loudness: set the preset's output gain so the EQ doesn't change how loud the mix is</label>
+          <p class="note placement" id="correctionPlacement"></p>
+        </div>
+      </div>
+      <div id="masterTest" aria-live="polite"></div>
+    </div>
+  </div>
+  </section>
+
+  <section class="tab-panel" id="tab-tracks" role="tabpanel" aria-labelledby="tabbtn-tracks" tabindex="-1" hidden>
+  <div class="panel tab-card">
+    <div class="eq-block" id="trackDrop">
+      <div class="eq-block-h">
+        <h3>Track EQs <span class="note">one preset per channel strip</span></h3>
+        <div class="actions">
+          <button class="ghost" id="projectButton" type="button">Suggest tracks from a Logic project…</button>
+          <input type="file" id="projectInput" accept=".plist" hidden>
+          <button class="btn" id="downloadAll" type="button" disabled>Download all (.zip)</button>
+        </div>
+      </div>
+      <div class="track-tools" id="trackTools">
+        <p class="note">Or drop a <b>.logicx</b> project anywhere in this box. Without a drop, choose its <b>MetaData.plist</b> (right-click the project › Show Package Contents › Alternatives › 000).</p>
+      </div>
+      <div class="import-panel" id="importPanel" hidden></div>
+      <ul class="track-list" id="trackList"></ul>
+      <p class="note track-message" id="trackMessage" role="status" aria-live="polite"></p>
+    </div>
+
+    <p class="note tab-links"><button class="linklike" type="button" data-goto="help">How to install presets in Logic</button></p>
+  </div>
+  </section>
+
+  <section class="tab-panel" id="tab-calibrate" role="tabpanel" aria-labelledby="tabbtn-calibrate" tabindex="-1" hidden>
+  <div class="panel tab-card">
+    <div class="eq-block" id="eqCalibration">
+      <div class="eq-block-h">
+        <h3>Measure Logic's Channel EQ <span class="note">so presets sound in Logic the way they do here</span></h3>
+        <div class="actions">
+          <button class="ghost" id="calReset" type="button" hidden>Stop using the calibration</button>
+          <button class="ghost" id="calToggle" type="button" aria-expanded="true" aria-controls="calBody">Hide</button>
+        </div>
+      </div>
+      <p class="cal-state" id="calState"></p>
+      <div class="cal-body" id="calBody">
+      <ol class="cal-steps">
+        <li><b>Download</b> the test noise and the calibration preset, and put the preset in the Channel EQ presets folder (see "Installing presets" in Help).
+          <span class="actions"><button class="ghost" id="calNoise" type="button">Download test noise (30 s WAV)</button><button class="ghost" id="calibrationDownload" type="button">Download calibration preset</button></span></li>
+        <li><b>In Logic</b>, make a new stereo audio track, drag the noise to the start of bar 1, and keep its fader at 0 dB and pan centred. Insert Channel EQ as its only plugin and choose <i>Mixdown Report › Mixdown Calibration</i>. Mute other tracks and leave the Stereo Out empty.</li>
+        <li><b>Bounce</b> the 30 seconds of noise: File › Bounce › Project or Section, PCM, WAVE, 24-bit, Normalize off.</li>
+        <li><b>Drop the bounce below.</b> The app compares it with the original noise, which gives Channel EQ's exact response, and shows how it differs from the app's model.</li>
+        <li><b>Use the calibration.</b> From then on, every exported preset (correction and track EQs) is converted so your Logic's Channel EQ plays exactly the curve the app suggested and tested.</li>
+      </ol>
+      <div class="cal-inputs">
+        <label class="cal-preset"><span class="k">Preset on the track</span>
+          <select id="calPresetUsed">
+            <option value="calibration">Mixdown Calibration (recommended)</option>
+            <option value="file">Another Channel EQ preset (.pst)…</option>
+          </select>
+          <input type="file" id="calPstInput" accept=".pst" hidden>
+          <span class="note" id="calPstName"></span>
+        </label>
+        <div class="drop cal-drop" id="calDrop">
+          <label class="pick" for="calBounceInput">
+            <input type="file" id="calBounceInput" accept="audio/*,.wav,.aif,.aiff,.flac">
+            <span class="k">Bounce</span>
+            <span class="drop-name">Drop the bounced test noise here</span>
+            <span class="drop-sub">or click to choose it</span>
+          </label>
+        </div>
+      </div>
+      <div class="status" id="calProgress" role="status" aria-live="polite"></div>
+      <div id="calResult"></div>
+      </div>
+    </div>
+
+  </div>
+  </section>
+
+  <section class="tab-panel" id="tab-master" role="tabpanel" aria-labelledby="tabbtn-master" tabindex="-1" hidden>
+  <section class="panel mastering" id="masterSection" aria-labelledby="masterTitle">
+    <div class="panel-h">
+      <h2 id="masterTitle">Master in the browser</h2>
+      <span class="k">Tone · glue · true-peak limiter</span>
+    </div>
+    <p class="note master-intro">Starts from your unmastered mix: shapes the tone toward a character and your genre curve or reference, adds gentle glue compression, then limits to your loudness target. Then compare it with the mix at matched loudness.</p>
+    <div id="masterWarning"></div>
+    <fieldset class="characters" id="masterCharacters"><legend class="k">Character</legend></fieldset>
+    <div class="master-controls">
+      <label class="strength"><span class="k">Tone strength</span>
+        <input type="range" id="masterStrength" min="0" max="100" step="5" value="60" aria-describedby="masterStrengthHelp">
+        <span class="mono" id="masterStrengthValue">60%</span>
+      </label>
+      <p class="note" id="masterStrengthHelp">How far to move the tone toward the target. 0% keeps the mix's tone and only sets loudness.</p>
+      <p class="note" id="masterTarget"></p>
+    </div>
+    <div class="actions"><button class="btn" id="masterRender" type="button">Master the mix</button></div>
+    <div class="status" id="masterStatus" role="status" aria-live="polite"></div>
+    <div id="masterResult"></div>
+  </section>
+
+  </section>
+
+  <section class="tab-panel" id="tab-release" role="tabpanel" aria-labelledby="tabbtn-release" tabindex="-1" hidden>
+  <section class="panel release" id="releaseSection" aria-labelledby="releaseTitle">
+    <div class="panel-h">
+      <h2 id="releaseTitle">Release files</h2>
+      <span class="k">FLAC · MP3 · ready for RouteNote</span>
+    </div>
+    <p class="note release-intro">RouteNote accepts stereo FLAC or MP3 320 kbps at 16-bit, 44.1 kHz, and no WAV. Prefer FLAC: it's lossless, so stores make their streaming versions from an exact copy of your master instead of re-encoding an MP3. Tick several file types or both the mix and the master to make them all in one go. Every file is decoded and checked before you download it.</p>
+    <div class="release-form">
+      <fieldset class="release-pick" id="releaseSources"></fieldset>
+      <fieldset class="release-pick" id="releaseSpecs"></fieldset>
+      <div class="release-option">
+        <label class="check"><input type="checkbox" id="releaseCeiling"> Keep the true peak at −1 dBTP or lower (turns the file down only if needed)</label>
+        <p class="note" id="releaseCeilingNote"></p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="releaseCreate" type="button">Create release file</button>
+        <button class="ghost" id="releaseStop" type="button" hidden>Stop</button>
+        <span class="note" id="releaseCount"></span>
+      </div>
+    </div>
+    <div class="status" id="releaseStatus" role="status" aria-live="polite"></div>
+    <div id="releaseResult"></div>
+  </section>
+
+  </section>
+
+  <section class="tab-panel" id="tab-help" role="tabpanel" aria-labelledby="tabbtn-help" tabindex="-1" hidden>
+  <section class="foot" aria-label="Help and sharing">
     <div class="panel">
       <h2>Bouncing from Logic Pro</h2>
       <ul>
@@ -103,8 +292,23 @@
       <p class="note copy-hint">Copies the measurements, fixes and chain as plain text for notes or a collaborator.</p>
       <div class="actions"><button class="btn" id="copyBtn" type="button">Copy report</button><span id="copyMsg" class="note copy-msg" aria-live="polite"></span></div>
       <textarea id="copyOut" readonly hidden aria-label="Report text"></textarea>
+      <p class="note credits">MP3 files are encoded with <a href="https://lame.sourceforge.net" rel="noopener noreferrer" target="_blank">LAME</a> (LGPL), through its JavaScript port lamejs.</p>
     </div>
   </section>
+  <div class="panel tab-card">
+    <details class="install" open>
+      <summary>Installing presets in Logic Pro</summary>
+      <ol>
+        <li>In Finder, press ⇧⌘G and go to <code id="presetPath"></code> <button class="ghost" id="copyPath" type="button">Copy path</button></li>
+        <li>Put the downloaded <code>.pst</code> files there. The .zip contains a <b>Mixdown Report</b> folder: copy the whole folder so the presets appear together in a submenu.</li>
+        <li>Track presets: open a Channel EQ on the channel strip and pick the preset from the Setting menu at the top of the plug-in window. Use an empty Channel EQ if the track already has one you want to keep.</li>
+        <li>The correction preset: load it into a separate Channel EQ named "Mixdown correction" on the Stereo Out, after your own master EQ and before any compressor or limiter. When the app suggests an updated correction, load it into that same EQ.</li>
+      </ol>
+      <p class="note">Apple doesn't document the preset format; it was mapped from Logic's own presets. Mid/Side processing isn't included yet. The Calibrate tab checks every band on your Logic version and corrects exports if Logic's filters behave differently.</p>
+    </details>
+  </div>
+  </section>
+
 </div>
 </body>
 </html>

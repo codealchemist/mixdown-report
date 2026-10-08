@@ -77,17 +77,25 @@ export function renderBands(el, ev) {
   }));
 }
 
+let openFinding = null; // id of the expanded fix, kept across re-renders
+
+/** Fixes as a compact accordion: one line each, one expanded at a time (the most severe first). */
 export function renderFindings(el, countEl, ev) {
   countEl.textContent = ev.findings.length ? `${ev.findings.length} item${ev.findings.length > 1 ? 's' : ''}` : '';
+  if (!ev.findings.some((f) => f.id === openFinding)) openFinding = ev.findings[0]?.id ?? null;
   mount(el,
     ev.findings.map((f) =>
-      h('article', { class: 'rec' },
-        h('div', { class: 'rec-h' },
+      h('details', {
+        class: 'rec', name: 'fixes', open: f.id === openFinding,
+        ontoggle: (e) => { if (e.target.open) openFinding = f.id; },
+      },
+        h('summary', { class: 'rec-h' },
           h('span', { class: `pill ${SEVERITY_CLASS[f.severity]}`, text: SEVERITY[f.severity].label }),
-          h('span', { class: 'k', text: f.area })),
-        h('h3', { text: f.title }),
-        h('p', { text: f.detail }),
-        f.steps.length && [h('span', { class: 'k logic-k', text: 'In Logic Pro' }), h('ul', { class: 'logic' }, f.steps.map((s) => h('li', { text: s })))])),
+          h('span', { class: 'rec-title', text: f.title }),
+          h('span', { class: 'k rec-area', text: f.area })),
+        h('div', { class: 'rec-body' },
+          h('p', { text: f.detail }),
+          f.steps.length && [h('span', { class: 'k logic-k', text: 'In Logic Pro' }), h('ul', { class: 'logic' }, f.steps.map((s) => h('li', { text: s })))]))),
     !ev.findings.length && h('p', { class: 'note', text: 'Nothing stands out. Trust your ears and compare against a reference.' }),
     ev.ok.length && h('div', { class: 'oklist-wrap' },
       h('span', { class: 'k', text: 'Looks good' }),
@@ -98,9 +106,9 @@ export function renderChain(listEl, titleEl, altEl, ev) {
   titleEl.textContent = ev.stage === 'mix' ? 'When you master this mix' : 'Adjust your mastering chain';
   mount(listEl, ev.chain.map((step, i) =>
     h('li', {},
-      h('span', { class: 'slot', text: `Insert ${i + 1}` }),
-      h('span', { class: 'plug', text: step.plugin }),
-      h('ul', {}, step.settings.map((s) => h('li', { text: s }))))));
+      h('details', { name: 'chain', open: i === 0 },
+        h('summary', {}, h('span', { class: 'slot', text: `Insert ${i + 1}` }), h('span', { class: 'plug', text: step.plugin })),
+        h('ul', {}, step.settings.map((s) => h('li', { text: s })))))));
   altEl.textContent = ev.assistant;
 }
 

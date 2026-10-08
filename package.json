@@ -12,6 +12,8 @@
     "start": "node scripts/serve.js",
     "test": "node --test test/",
     "check": "node scripts/check.js",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test",
+    "pst": "node scripts/pst.js",
+    "calibration": "node scripts/calibration.js"
   }
 }

@@ -1,8 +1,7 @@
 /**
  * Tonal-balance advice per band and direction. `mix` steps act on tracks in Logic Pro;
- * `eq(amount)` describes the gentle Stereo Out Channel EQ move for mastering.
+ * `master` is the shape of the gentle Stereo Out Channel EQ move; its gain is set from the measurement.
  */
-import { MINUS } from './format.js';
 
 export const BAND_ADVICE = Object.freeze({
   sub: {
@@ -14,7 +13,7 @@ export const BAND_ADVICE = Object.freeze({
         'Only kick and bass should carry content under 60 Hz: put Channel EQ Low Cut at 80–150 Hz on pads, keys, guitars and vocals.',
         'If the bass still dominates, lower its fader 1–2 dB before EQ-ing the master.',
       ],
-      eq: (a) => `Low Shelf 50 Hz, ${MINUS}${a} dB, Q 0.71`,
+      master: { type: 'lowShelf', freq: 50, q: 0.71 },
     },
     low: {
       title: 'Sub-bass is light',
@@ -24,7 +23,7 @@ export const BAND_ADVICE = Object.freeze({
         'For synth or 808 bass, layer a sine one octave down and blend it in under the main bass.',
         'If you mix on small speakers, check the low end on headphones before adding more.',
       ],
-      eq: (a) => `Low Shelf 50 Hz, +${a} dB, Q 0.71`,
+      master: { type: 'lowShelf', freq: 50, q: 0.71 },
     },
   },
   low: {
@@ -36,7 +35,7 @@ export const BAND_ADVICE = Object.freeze({
         "Put Channel EQ Low Cut at 100–150 Hz on everything that isn't kick or bass.",
         'If kick and bass still mask each other, add Compressor on the bass with Side Chain set to the kick (Studio VCA, 4:1, fast attack, 2–4 dB reduction).',
       ],
-      eq: (a) => `Bell 120 Hz, ${MINUS}${a} dB, Q 0.8`,
+      master: { type: 'peak', freq: 120, q: 0.8 },
     },
     low: {
       title: 'Bass range is thin',
@@ -46,7 +45,7 @@ export const BAND_ADVICE = Object.freeze({
         'Channel EQ on the bass: bell +2 dB at 80–100 Hz, Q 1.0.',
         "Check that Low Cut filters on kick and bass aren't set too high.",
       ],
-      eq: (a) => `Bell 100 Hz, +${a} dB, Q 0.8`,
+      master: { type: 'peak', freq: 100, q: 0.8 },
     },
   },
   lowmid: {
@@ -58,7 +57,7 @@ export const BAND_ADVICE = Object.freeze({
         "Put Channel EQ Low Cut at 100–200 Hz on every track that doesn't need low end.",
         'Low-cut your reverb returns (ChromaVerb, Space Designer) at 200–300 Hz.',
       ],
-      eq: (a) => `Bell 300 Hz, ${MINUS}${a} dB, Q 1.0`,
+      master: { type: 'peak', freq: 300, q: 1.0 },
     },
     low: {
       title: 'Low mids are scooped',
@@ -67,7 +66,7 @@ export const BAND_ADVICE = Object.freeze({
         'Check for aggressive Low Cut filters on guitars, keys and vocals and lower them to 80–100 Hz.',
         'Channel EQ on the main harmonic instruments: bell +1.5 dB at 250–350 Hz, Q 1.0.',
       ],
-      eq: (a) => `Bell 300 Hz, +${a} dB, Q 1.0`,
+      master: { type: 'peak', freq: 300, q: 1.0 },
     },
   },
   mid: {
@@ -78,7 +77,7 @@ export const BAND_ADVICE = Object.freeze({
         'Sweep 600 Hz–1.5 kHz on vocals, guitars and snare to find the honk, then cut 2–3 dB with Q 2.',
         'Check whether several parts sit in the same register; mute or pan one to compare.',
       ],
-      eq: (a) => `Bell 1 kHz, ${MINUS}${a} dB, Q 0.9`,
+      master: { type: 'peak', freq: 1000, q: 0.9 },
     },
     low: {
       title: 'Mids are scooped',
@@ -87,7 +86,7 @@ export const BAND_ADVICE = Object.freeze({
         'Bring up the lead vocal and lead instruments 1 dB before boosting.',
         'Channel EQ on the lead vocal: bell +1.5 dB at 1–1.5 kHz, Q 1.0.',
       ],
-      eq: (a) => `Bell 1 kHz, +${a} dB, Q 0.7`,
+      master: { type: 'peak', freq: 1000, q: 0.7 },
     },
   },
   upmid: {
@@ -98,7 +97,7 @@ export const BAND_ADVICE = Object.freeze({
         'Check distorted guitars, synth leads and vocals: Channel EQ bell −2 to −3 dB at 2.5–3.5 kHz, Q 2.',
         'If harshness appears only on loud notes, put Multipressor on that track with one band at 2–5 kHz, ratio 3:1, 2–3 dB of reduction.',
       ],
-      eq: (a) => `Bell 3 kHz, ${MINUS}${a} dB, Q 1.2`,
+      master: { type: 'peak', freq: 3000, q: 1.2 },
     },
     low: {
       title: 'Upper mids lack definition',
@@ -107,7 +106,7 @@ export const BAND_ADVICE = Object.freeze({
         'Channel EQ on the lead vocal: bell +2 dB at 3 kHz, Q 1.2.',
         'On snare and guitars, try +1.5 dB around 2.5 kHz for attack.',
       ],
-      eq: (a) => `Bell 3 kHz, +${a} dB, Q 0.9`,
+      master: { type: 'peak', freq: 3000, q: 0.9 },
     },
   },
   pres: {
@@ -118,13 +117,13 @@ export const BAND_ADVICE = Object.freeze({
         "Put DeEsser 2 on the lead vocal: Mode Relative, Frequency 6–7 kHz, lower Threshold until 's' sounds drop 3–5 dB.",
         'On overheads and hi-hats: Channel EQ bell −2 dB at 5–7 kHz, Q 1.5.',
       ],
-      eq: (a) => `Bell 6 kHz, ${MINUS}${a} dB, Q 1.0`,
+      master: { type: 'peak', freq: 6000, q: 1.0 },
     },
     low: {
       title: 'Presence is low',
       why: 'The mix may sound veiled and lose clarity.',
       mix: ['Channel EQ on the lead vocal: High Shelf +2 dB at 5 kHz.', 'Check hi-hat and percussion levels.'],
-      eq: (a) => `High Shelf 5 kHz, +${a} dB, Q 0.71`,
+      master: { type: 'peak', freq: 5500, q: 0.9 }, // a bell, so it can't stack with the air shelf
     },
   },
   air: {
@@ -135,7 +134,7 @@ export const BAND_ADVICE = Object.freeze({
         'Check cymbals, hats and vocal breaths: High Shelf −2 dB at 10 kHz on overheads.',
         'Set High Cut at 8–10 kHz on reverb returns, and check for noisy tracks.',
       ],
-      eq: (a) => `High Shelf 10 kHz, ${MINUS}${a} dB, Q 0.71`,
+      master: { type: 'highShelf', freq: 10000, q: 0.71 },
     },
     low: {
       title: 'Top end is dark',
@@ -144,7 +143,7 @@ export const BAND_ADVICE = Object.freeze({
         'Channel EQ on vocals and overheads: High Shelf +2 dB at 10–12 kHz.',
         "Check that reverbs and synths aren't low-passed too hard.",
       ],
-      eq: (a) => `High Shelf 12 kHz, +${a} dB, Q 0.71`,
+      master: { type: 'highShelf', freq: 12000, q: 0.71 },
     },
   },
 });
