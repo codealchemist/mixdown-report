@@ -15,6 +15,19 @@ export const DELIVERY_SPECS = Object.freeze({
   'flac-24': { name: 'FLAC 24-bit, original sample rate (archive)', format: 'flac', sampleRate: null, bits: 24 },
 });
 
+/**
+ * Name for a finished release file: the song, which version of it, and what the file is.
+ * releaseFileName({ song: 'Song', variant: 'master', report }) -> "Song (master) (44.1k 16-bit).flac"
+ * @param {{ song: string, variant?: string|null, report: { format: string, kbps?: number, sampleRate: number, bits: number } }} file
+ */
+export function releaseFileName({ song, variant = null, report }) {
+  const what = report.format === 'mp3' ? `${report.kbps} kbps` : `${report.sampleRate / 1000}k ${report.bits}-bit`;
+  return `${song}${variant ? ` (${variant})` : ''} (${what}).${report.format}`;
+}
+
+/** Name for a zip of a song's release files. */
+export const releaseZipName = (song) => `${song} (release files).zip`;
+
 const MP3_MARGIN = 0.5; // dB: MP3 encoding raises peaks slightly, so lossy exports keep extra headroom
 
 const peakOf = (channels) => Math.max(...channels.map((c) => truePeak(c, c.reduce((m, v) => Math.max(m, Math.abs(v)), 0))));

@@ -291,8 +291,7 @@ code { font-family: var(--f-mono); font-size: 0.85em; background: var(--panel); 
 .release-files-h .actions { margin: 0; }
 .release-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .release-file { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 8px 12px; }
-.release-file > details > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-height: 30px; padding-top: 3px; }
-.release-file > details > summary::-webkit-details-marker { display: none; }
+.release-file > details > summary { flex-wrap: wrap; gap: 4px 10px; min-height: 30px; padding-top: 3px; }
 .release-file > details[open] > summary { margin-bottom: 10px; }
 .release-toggle { margin-left: auto; align-self: center; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
 .release-toggle::after { content: "Show checks ▸"; }
@@ -300,20 +299,16 @@ details[open] > summary > .release-toggle::after { content: "Hide checks ▾"; }
 .release-file > details > summary:hover .release-toggle { color: var(--accent); }
 .release-file .release-name { font-size: 0.95rem; }
 .release-file .note { margin: 0; }
-.release-file .verdict, .release-fail .verdict { font-family: var(--f-mono); font-weight: 700; width: 1.6em; text-align: center; border-radius: 4px; flex: none; }
-.verdict.good { color: var(--good); background: var(--good-bg); }
-.verdict.warn { color: var(--warn); background: var(--warn-bg); }
-.verdict.crit { color: var(--crit); background: var(--crit-bg); }
 .release-file.failed { grid-template-columns: 1fr; }
 .release-fail { display: flex; gap: 10px; align-items: baseline; color: var(--crit); font-size: 0.92rem; }
 .release-name { font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere; }
 .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.92rem; }
 .checks li { display: flex; gap: 10px; align-items: baseline; }
-.checks .mark { font-family: var(--f-mono); font-weight: 700; width: 1.4em; text-align: center; border-radius: 4px; flex: none; }
-.checks .good .mark { color: var(--good); background: var(--good-bg); }
-.checks .warn .mark { color: var(--warn); background: var(--warn-bg); }
-.checks .crit .mark { color: var(--crit); background: var(--crit-bg); }
-.checks .info .mark { color: var(--info); background: var(--info-bg); }
+.checks .mark, .verdict { font-family: var(--f-mono); font-weight: 700; width: 1.5em; text-align: center; border-radius: 4px; flex: none; }
+.checks .good .mark, .verdict.good { color: var(--good); background: var(--good-bg); }
+.checks .warn .mark, .verdict.warn { color: var(--warn); background: var(--warn-bg); }
+.checks .crit .mark, .verdict.crit { color: var(--crit); background: var(--crit-bg); }
+.checks .info .mark, .verdict.info { color: var(--info); background: var(--info-bg); }
 .release-notes { margin: 0; padding-left: 18px; font-size: 0.86rem; color: var(--muted); display: grid; gap: 3px; }
 
 /* Mastering */
@@ -471,8 +466,10 @@ h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
 .cal-steps { gap: 4px; }
 @media (prefers-reduced-motion: reduce) { .rec > summary::after { transition: none; } }
 
-.chain li > details > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; }
-.chain li > details > summary::-webkit-details-marker { display: none; }
+/* Disclosure rows: the whole summary line toggles, without the browser's marker */
+.chain li > details > summary, .release-file > details > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; }
+.chain li > details > summary::-webkit-details-marker, .release-file > details > summary::-webkit-details-marker { display: none; }
+.chain li > details > summary { gap: 10px; }
 .chain li > details > summary::after { content: "▸"; margin-left: auto; color: var(--muted); transition: transform .15s; }
 .chain li > details[open] > summary::after { transform: rotate(90deg); }
 .chain li > details > ul { margin-top: 8px; }
@@ -482,9 +479,11 @@ h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
 @media (min-width: 1000px) and (min-height: 640px) {
   .wrap { height: 100dvh; grid-template-rows: auto auto auto minmax(0, 1fr); padding-bottom: 6px; }
   .tab-panel:not([hidden]) { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  #tab-fixes:not([hidden]) { overflow: hidden; grid-template-rows: minmax(0, 1fr); align-content: stretch; }
-  .fixes-grid { min-height: 0; align-items: stretch; }
-  .fixes-grid > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  /* A tab marked .fill gives its whole height to a .scroll-columns grid (directly or under a panel heading); each column scrolls on its own */
+  .tab-panel.fill:not([hidden]) { overflow: hidden; grid-template-rows: minmax(0, 1fr); align-content: stretch; }
+  .tab-panel.fill > .panel { min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+  .tab-panel.fill .scroll-columns { min-height: 0; align-items: stretch; }
+  .tab-panel.fill .scroll-columns > * { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 }
 
 /* Phones: keep the title and Reload mix on one line; there's no keyboard for the R hint */
@@ -496,11 +495,9 @@ h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
 }
 
 /* Release files: settings on the left, the generated files beside them on wide screens */
-@media (min-width: 1100px) {
-  .release { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 24px; align-items: start; }
-  .release > .panel-h { grid-column: 1 / -1; }
-  .release > :not(.panel-h):not(#releaseResult) { grid-column: 1; }
-  .release > #releaseResult { grid-column: 2; grid-row: 2 / span 3; }
-  .release .release-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.release-body { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.release-settings { display: grid; gap: 14px; align-content: start; }
+@media (min-width: 1000px) {
+  .release-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 24px; align-items: start; }
 }
 .release-empty { margin: 0; padding: 18px; border: 1.5px dashed var(--line); border-radius: 8px; }

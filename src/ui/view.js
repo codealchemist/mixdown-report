@@ -7,13 +7,16 @@ import { h, mount } from './dom.js';
 const SEVERITY_CLASS = { critical: 'crit', warning: 'warn', note: 'info' };
 const STATE_CLASS = { good: 'good', warning: 'warn', critical: 'crit', '': '' };
 
-/** @param {{ kind: 'busy'|'error'|'info', text: string, progress?: number, tag?: string }[]} items */
-export function renderStatus(el, items) {
+/**
+ * @param {{ kind: 'busy'|'error'|'info', text: string, progress?: number, tag?: string }[]} items
+ * @param {string} [progressLabel] accessible name of the progress bar
+ */
+export function renderStatus(el, items, progressLabel = 'Analysis progress') {
   mount(el, items.map((it) => {
     if (it.tag) return h('span', { class: 'tag', text: it.tag });
     const span = h('span', { class: it.kind === 'busy' ? 'busy' : it.kind === 'error' ? 'err' : '', text: it.text });
     if (it.kind !== 'busy' || it.progress == null) return span;
-    return [span, h('progress', { max: 1, value: it.progress.toFixed(3), 'aria-label': 'Analysis progress' })];
+    return [span, h('progress', { max: 1, value: it.progress.toFixed(3), 'aria-label': progressLabel })];
   }));
 }
 

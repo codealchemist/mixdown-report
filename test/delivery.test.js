@@ -9,7 +9,7 @@ import { resample } from '../src/core/dsp/resample.js';
 import { quantize, isOnGrid } from '../src/core/dsp/dither.js';
 import { Md5, md5Hex } from '../src/core/codecs/md5.js';
 import { crc8, crc16, encodeFlac } from '../src/core/codecs/flac.js';
-import { prepareDelivery, flacMd5 } from '../src/core/delivery.js';
+import { prepareDelivery, flacMd5, releaseFileName, releaseZipName } from '../src/core/delivery.js';
 import { measureLevels } from '../src/core/levels.js';
 import { decodeFlac } from './flac-decoder.js';
 import { sine } from './helpers.js';
@@ -179,4 +179,11 @@ test('delivery: an existing 16-bit 44.1 kHz file is copied exactly, and mono bec
   assert.deepEqual(d.channels[0], ints);
   assert.deepEqual(d.channels[1], ints);
   assert.ok(report.notes.some((n) => n.includes('mono')));
+});
+
+test('release file names say the song, its version and the file type', () => {
+  assert.equal(releaseFileName({ song: 'Song', report: { format: 'flac', sampleRate: 44100, bits: 16 } }), 'Song (44.1k 16-bit).flac');
+  assert.equal(releaseFileName({ song: 'Song', variant: 'master', report: { format: 'flac', sampleRate: 48000, bits: 24 } }), 'Song (master) (48k 24-bit).flac');
+  assert.equal(releaseFileName({ song: 'Song (v2)', variant: 'master', report: { format: 'mp3', kbps: 320, sampleRate: 44100, bits: 16 } }), 'Song (v2) (master) (320 kbps).mp3');
+  assert.equal(releaseZipName('Song (v2)'), 'Song (v2) (release files).zip');
 });

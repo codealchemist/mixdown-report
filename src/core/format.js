@@ -9,6 +9,9 @@ export function num(x, digits = 1) {
   return x < 0 && Number(s) !== 0 ? MINUS + s : s;
 }
 
+/** "1 file", "3 files". */
+export const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 /** Like `num` but always shows the sign of non-zero values. */
 export function signed(x, digits = 1) {
   if (!Number.isFinite(x)) return '–';

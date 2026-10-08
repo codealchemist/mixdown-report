@@ -95,8 +95,8 @@
   </div>
   </section>
 
-  <section class="tab-panel" id="tab-fixes" role="tabpanel" aria-labelledby="tabbtn-fixes" tabindex="-1" hidden>
-  <div class="fixes-grid">
+  <section class="tab-panel fill" id="tab-fixes" role="tabpanel" aria-labelledby="tabbtn-fixes" tabindex="-1" hidden>
+  <div class="fixes-grid scroll-columns">
     <div class="panel">
       <div class="panel-h"><h2>What to fix</h2><span class="k" id="recCount"></span></div>
       <div class="recs" id="recs"></div>
@@ -249,28 +249,32 @@
 
   </section>
 
-  <section class="tab-panel" id="tab-release" role="tabpanel" aria-labelledby="tabbtn-release" tabindex="-1" hidden>
+  <section class="tab-panel fill" id="tab-release" role="tabpanel" aria-labelledby="tabbtn-release" tabindex="-1" hidden>
   <section class="panel release" id="releaseSection" aria-labelledby="releaseTitle">
     <div class="panel-h">
       <h2 id="releaseTitle">Release files</h2>
       <span class="k">FLAC · MP3 · ready for RouteNote</span>
     </div>
-    <p class="note release-intro">RouteNote accepts stereo FLAC or MP3 320 kbps at 16-bit, 44.1 kHz, and no WAV. Prefer FLAC: it's lossless, so stores make their streaming versions from an exact copy of your master instead of re-encoding an MP3. Tick several file types or both the mix and the master to make them all in one go. Every file is decoded and checked before you download it.</p>
-    <div class="release-form">
-      <fieldset class="release-pick" id="releaseSources"></fieldset>
-      <fieldset class="release-pick" id="releaseSpecs"></fieldset>
-      <div class="release-option">
-        <label class="check"><input type="checkbox" id="releaseCeiling"> Keep the true peak at −1 dBTP or lower (turns the file down only if needed)</label>
-        <p class="note" id="releaseCeilingNote"></p>
+    <div class="release-body scroll-columns">
+      <div class="release-settings">
+        <p class="note release-intro">RouteNote accepts stereo FLAC or MP3 320 kbps at 16-bit, 44.1 kHz, and no WAV. Prefer FLAC: it's lossless, so stores make their streaming versions from an exact copy of your master instead of re-encoding an MP3. Tick several file types or both the mix and the master to make them all in one go. Every file is decoded and checked before you download it.</p>
+        <div class="release-form">
+          <fieldset class="release-pick" id="releaseSources"></fieldset>
+          <fieldset class="release-pick" id="releaseSpecs"></fieldset>
+          <div class="release-option">
+            <label class="check"><input type="checkbox" id="releaseCeiling"> Keep the true peak at −1 dBTP or lower (turns the file down only if needed)</label>
+            <p class="note" id="releaseCeilingNote"></p>
+          </div>
+          <div class="actions">
+            <button class="btn" id="releaseCreate" type="button">Create release file</button>
+            <button class="ghost" id="releaseStop" type="button" hidden>Stop</button>
+            <span class="note" id="releaseCount"></span>
+          </div>
+        </div>
+        <div class="status" id="releaseStatus" role="status" aria-live="polite"></div>
       </div>
-      <div class="actions">
-        <button class="btn" id="releaseCreate" type="button">Create release file</button>
-        <button class="ghost" id="releaseStop" type="button" hidden>Stop</button>
-        <span class="note" id="releaseCount"></span>
-      </div>
+      <div id="releaseResult"></div>
     </div>
-    <div class="status" id="releaseStatus" role="status" aria-live="polite"></div>
-    <div id="releaseResult"></div>
   </section>
 
   </section>

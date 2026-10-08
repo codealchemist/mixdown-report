@@ -131,17 +131,21 @@ const renderJobs = new JobRunner(new URL('./workers/render.worker.js', import.me
 });
 
 const mixTitle = () => (state.mix?.demo ? 'Example demo loop' : state.mix?.name ?? 'Mix');
+/** The mix's name without its file extension, for naming files made from it. */
+const songTitle = () => mixTitle().replace(/\.[^.]+$/, '');
+const masterTitle = () => `${state.master.report.characterName}, ${state.master.report.targetLufs} LUFS`;
 
 const releaseSection = createReleaseSection($('#releaseSection'), {
   sources: () => [
-    { id: 'master', label: state.master ? `Master made here: ${state.master.report.characterName}, ${state.master.report.targetLufs} LUFS` : 'Master made here', available: Boolean(state.master), peakDb: state.master?.analysis.truePeakDb },
-    { id: 'mix', label: state.mix ? `Loaded file as is: ${mixTitle()}` : 'Loaded file', available: Boolean(state.mix), peakDb: state.mix?.analysis.truePeakDb },
+    { id: 'master', label: state.master ? `Master made here: ${masterTitle()}` : 'Master made here', available: Boolean(state.master), peakDb: state.master?.analysis.truePeakDb, version: state.master },
+    { id: 'mix', label: state.mix ? `Loaded file as is: ${mixTitle()}` : 'Loaded file', available: Boolean(state.mix), peakDb: state.mix?.analysis.truePeakDb, version: state.mix?.analysis },
   ],
   loadAudio: async (sourceId) => {
     if (sourceId === 'master' && state.master) {
-      return { channels: state.master.channels.map((c) => c.slice()), sampleRate: state.master.sampleRate, name: `${mixTitle().replace(/\.[^.]+$/, '')} (master)`, analysis: state.master.analysis };
+      return { channels: state.master.channels.map((c) => c.slice()), sampleRate: state.master.sampleRate, song: songTitle(), variant: 'master' };
     }
-    return { ...(await loadPreviewAudio()), name: mixTitle(), analysis: state.mix.analysis };
+    const { channels, sampleRate } = await loadPreviewAudio();
+    return { channels, sampleRate, song: songTitle(), variant: null };
   },
   renderJobs,
   analysisJobs,
@@ -185,7 +189,6 @@ const masterSection = createMasterSection($('#masterSection'), {
   useForRelease: () => {
     releaseSection.selectSource('master');
     tabs.select('release');
-    renderFilePills();
   },
 });
 
@@ -196,7 +199,7 @@ const masterSection = createMasterSection($('#masterSection'), {
 function renderFilePills() {
   const mix = state.mix && { file: 'mix', name: mixTitle() };
   const ref = state.ref && { file: 'ref', label: 'Reference', name: state.ref.name };
-  const master = state.master && { file: 'master', name: `Master: ${state.master.report.characterName}, ${state.master.report.targetLufs} LUFS` };
+  const master = state.master && { file: 'master', name: `Master: ${masterTitle()}` };
   const curve = state.evaluation && { file: 'curve', label: 'Reference', name: `${state.evaluation.genre.name} curve (no reference file)` };
   const pills = {
     calibrate: [{ file: 'test', label: 'Source', name: "Test noise bounced through Logic's Channel EQ, not your mix" }],
@@ -217,9 +220,8 @@ const clock = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '
 /** @param {{ kind: 'info'|'error', text: string }} [notice] a one-off message shown after the file details */
 function render(notice) {
   updateReloadButton();
-  renderFilePills();
   const mix = state.mix;
-  if (!mix) return;
+  if (!mix) return renderFilePills();
   const ref = state.ref?.analysis ?? null;
   const ev = evaluate(mix.analysis, state.settings, { reference: ref, file: mix.meta });
   state.evaluation = ev;
@@ -243,7 +245,8 @@ function render(notice) {
   const mixChanged = state.lastMixAnalysis !== mix.analysis;
   masterSection.update({ mixChanged });
   state.lastMixAnalysis = mix.analysis;
-  releaseSection.update({ sourceChanged: mixChanged });
+  releaseSection.update();
+  renderFilePills(); // after the evaluation and the release choices it names are up to date
 
   el.cmpLegend.textContent = ref ? 'Reference' : `${ev.genre.name} curve`;
   el.cmpLegend.classList.toggle('ref', Boolean(ref));
